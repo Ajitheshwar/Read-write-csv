@@ -1,0 +1,169 @@
+<form class="mb-3">
+    <div class="row" style="border-bottom : 1px solid rgba(0, 0, 0, 0.199)">
+        <div class="col-1 col-md-2"></div>
+        <div class="col-8 col-md-4">
+            <select name="category" class="form-control mb-3" placeholder="Choose Option" name="choice" [(ngModel)]="choice">
+                <option value="isbn">ISBN</option>
+                <option value="authors">Author's E-mail</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="input-group mb-3">
+                <span class="input-group-text">Search</span>
+                <input type="text" class="form-control" name="searchTerm" [(ngModel)]="searchTerm">
+            </div>
+        </div>
+    </div>
+</form>
+<div class="d-flex justify-content-evenly mb-3">
+    <button class="btn btn-light py-1 px-3" (click)="scrollToDiv('books')">Books</button>
+    <button class="btn btn-light py-1 px-3" (click)="scrollToDiv('magazines')">Magazines</button>
+    <button class="btn btn-light py-1 px-3" (click)="scrollToDiv('added')">Added Data</button>
+</div>
+<button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#Modal">
+    Add Book or Magazine
+</button>
+  
+<div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLabel">Add Book or Magazine</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form #ref="ngForm" (ngSubmit)="submitAddBookMagazine(ref)">
+                    <div class="row mb-3">
+                        <div class="col-5"> <label class="form-label">Title</label> </div>
+                        <div class="col-7">
+                            <input type="text" class="form-control" name="title" ngModel #refTitle='ngModel' required>
+                            <p *ngIf="(ref.submitted || refTitle.touched) && refTitle.errors?.['required']" class="text-danger mt-3"> *Title is required</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5"> <label class="form-label">ISBN</label> </div>
+                        <div class="col-7">
+                            <input type="text" class="form-control" name="isbn" ngModel #refISBN="ngModel" required pattern="(([0-9]{4}?\-){2}?([0-9]{4}?))">
+                            <p *ngIf="(ref.submitted || refISBN.touched) && refISBN.errors?.['required']" class="text-danger mt-3"> *ISBN is required</p>
+                            <p *ngIf="(ref.submitted || refISBN.touched) && refISBN.errors?.['pattern']" class="text-danger mt-3"> *It should be in the format : ####-####-#### (where # indicates a number)</p>
+                        </div>
+                    </div>
+                        <div class="row mb-3">
+                            <div class="col-5"> <label class="form-label">Category</label> </div>
+                            <div class="col-7">
+                                <select name="category" class="form-control" [(ngModel)]="category" #refCategory="ngModel" required>
+                                    <option value="Book">Book</option>
+                                    <option value="Magazine">Magazine</option>
+                                </select>
+                                <p *ngIf="(ref.submitted || refCategory.touched) && refCategory.errors?.['required']" class="text-danger mt-3"> *Category is required</p>
+                            </div>
+                        </div>
+                        <form #ref1="ngForm" (ngSubmit)="addAuthor(ref1)">
+                            <div class="row mb-3">
+                                <div class="col-5"> <label class="form-label">Authors</label> </div>
+                                <div class="col-7">
+                                    <input type="text" class="form-control" name="author" ngModel required>
+                                    <p *ngIf="authorError" class="text-danger mt-3">*Atleast one Author is required</p>
+                                </div>
+                            </div>
+                            <button type="submit" class="d-block mx-auto btn btn-primary mb-3"> Add Author</button>
+                            <div *ngFor="let a of aus; index as j" class="text-center mb-2">
+                                {{a}} <button class="btn btn-danger py-1 px-2" (click)="deleteAuthor(j)">Delete</button>
+                            </div>
+                        </form>
+                        <div class="row mb-3 mt-3">
+                            <div class="col-5"> <label class="form-label">Description</label> </div>
+                            <div class="col-7"><textarea name="description" class="form-control" cols="30" rows="3" ngModel>
+                                
+                            </textarea></div>
+                        </div>
+                        <button type="submit" class="btn btn-success d-block mx-auto">Add {{category}}</button>
+                    </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3 id="books" class="p-3 mb-3" style="border-bottom : 1px solid rgba(0,0,0,0.2)">Books</h3>
+
+<div class="table-responsive mb-3 p-2">
+    <table class="table table-bordered border-dark table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>ISBN</th>
+                <th>Author's E-mail</th>
+                <th>Author's Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let book of books | search : searchTerm : choice">
+            <td>{{book.title}}</td>
+            <td>{{book.isbn}}</td>
+            <td><div *ngFor="let y of book.authors" class="mb-3" style="padding : 5px;border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 3px;">
+                {{y}}
+            </div></td>
+            <td><div *ngFor="let y of book.authorsName" class="mb-3" style="padding : 5px;border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 3px;">
+                {{y}}
+            </div></td>
+            <td>{{book.description}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<h3 id="magazines" class="p-3 mb-3" style="border-bottom : 1px solid rgba(0,0,0,0.2)">Magazines</h3>
+<div class="table-responsive mb-3 p-2">
+    <table class="table table-bordered border-dark table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>ISBN</th>
+                <th>Author's E-mail</th>
+                <th>Author's Name</th>
+                <th>Published at</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let magazine of magazines | search : searchTerm : choice">
+            <td>{{magazine.title}}</td>
+            <td>{{magazine.isbn}}</td>
+            <td><div *ngFor="let y of magazine.authors" class="mb-3" style="padding : 5px;border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 3px;">
+                {{y}}
+            </div></td>
+            <td><div *ngFor="let y of magazine.authorsName" class="mb-3" style="padding : 5px;border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 3px;">
+                {{y}}
+            </div></td>
+            <td>{{magazine.publishedAt}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<h3 id="added" class="p-3 mb-3" style="border-bottom : 1px solid rgba(0,0,0,0.2)">Added Data</h3>
+
+<div class="table-responsive mb-3 p-2">
+    <table class="table table-bordered border-dark table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>ISBN</th>
+                <th>Authors</th>
+                <th>Category</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let file of files">
+            <td>{{file.title}}</td>
+            <td>{{file.isbn}}</td>
+            <td><div *ngFor="let y of file.authors" class="mb-3" style="padding : 5px;border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 3px;">
+                {{y}}
+            </div></td>
+            <td>{{file.category}}</td>
+            <td>{{file.description}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
